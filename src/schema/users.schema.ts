@@ -18,7 +18,7 @@ export class User {
   password: string;
 
   @Prop()
-  is_google_login: string;
+  is_google_login: boolean;
 
   @Prop({ default: null })
   hashed_refresh_token: string;
