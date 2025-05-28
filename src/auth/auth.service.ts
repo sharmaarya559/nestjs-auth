@@ -1,10 +1,16 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import jwtConfig from 'src/config/jwt.config';
 import refreshJwtConfig from 'src/config/refresh-jwt.config';
 import { UsersService } from 'src/users/users.service';
 import * as argon2 from 'argon2';
+import { GoogleLoginDto } from 'src/dto/google-login.dto';
 
 @Injectable()
 export class AuthService {
@@ -102,6 +108,32 @@ export class AuthService {
         success: false,
         message: error?.message,
       };
+    }
+  }
+
+  async googleLogin(body: GoogleLoginDto) {
+    try {
+      let user = await this.userService.findUser(body?.email);
+      if (!user) {
+        user = await this.userService.save({
+          ...body,
+          is_google_login: true,
+        });
+      }
+      const { access_token, refresh_token } = await this.generateTokens(
+        user?._id.toString(),
+      );
+      await this.userService.updateHashedRefreshToken(
+        user?._id.toString(),
+        await argon2.hash(refresh_token),
+      );
+      return {
+        user,
+        access_token,
+        refresh_token,
+      };
+    } catch (error) {
+      throw new BadRequestException('Invalid');
     }
   }
 }

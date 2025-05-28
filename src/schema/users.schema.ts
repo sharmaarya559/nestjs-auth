@@ -20,7 +20,7 @@ export class User {
   @Prop()
   is_google_login: string;
 
-  @Prop()
+  @Prop({ default: null })
   hashed_refresh_token: string;
 }
 

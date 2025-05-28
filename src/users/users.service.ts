@@ -65,7 +65,7 @@ export class UsersService {
 
   async getProfile(user_id: string) {
     try {
-      console.log(user_id)
+      console.log(user_id);
       const user = await this.userModal.findById(user_id);
       if (!user) {
         return { success: false, message: 'User not found.' };
@@ -76,6 +76,15 @@ export class UsersService {
       };
     } catch (error) {
       return { success: false, message: error?.message };
+    }
+  }
+
+  async save(data) {
+    try {
+      const user = await new this.userModal(data).save();
+      return user;
+    } catch (error) {
+      console.log(error);
     }
   }
 }
